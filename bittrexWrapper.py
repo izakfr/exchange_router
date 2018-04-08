@@ -20,6 +20,15 @@ class Wrapper:
         privateData = open(filename, "r")
         self.apiKey = privateData.readline().rstrip('\n')
         self.apiSecret = privateData.readline().rstrip('\n')
+        self.url = 'https://bittrex.com/api/v1.1/{req_type}/{cmnd}?'
+
+    # This function acts as an abstraction for the api functions, it will take
+    # in the arguments for the command and created the API request
+    # It will handle HMAC signatures, urlencoding, and request headers
+    def proccess_command(self, cmnd, requestType, requestArgs={}):
+        # TODO
+        assert(0)
+        return -1
 
     # Return the JSON response with 'Bid', 'Ask', and 'Last' for a given market
     def get_ticker(self, market):
@@ -49,6 +58,12 @@ class Wrapper:
     # Return the JSON response for placing a buy order for a given market with
     # a set price and amount
     def buy_limit(self, baseCurrency, counterCurrency, amount, price):
+        # TODO
+        assert(0)
+        return -1
+
+    # Return the JSON response for cancelling an order with the specific uuid
+    def cancel_order(self, uuid):
         # TODO
         assert(0)
         return -1
