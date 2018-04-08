@@ -65,25 +65,27 @@ class Wrapper:
     # Return the JSON response for placing a sell order for a given market with
     # a set price and amount
     def sell_limit(self, baseCurrency, counterCurrency, amount, price):
-        # TODO
-        assert(0)
-        return -1
+        market = baseCurrency + "-" + counterCurrency
+        return self.process_command("selllimit", "market",
+                                    {'market': market,
+                                     'quantity': amount,
+                                     'rate': price})
 
     # Return the JSON response for placing a buy order for a given market with
     # a set price and amount
     def buy_limit(self, baseCurrency, counterCurrency, amount, price):
-        # TODO
-        assert(0)
-        return -1
+        market = baseCurrency + "-" + counterCurrency
+        return self.process_command("buylimit", "market",
+                                    {'market': market,
+                                     'quantity': amount,
+                                     'rate': price})
 
     # Return the JSON response for cancelling an order with the specific uuid
     def cancel_order(self, uuid):
-        # TODO
-        assert(0)
-        return -1
+        return self.process_command("cancel", "market",
+                                    {'uuid': uuid})
 
     # Return the JSON response for getting the details of a specfic order
-    def get_order(self, orderID):
-        # TODO
-        assert(0)
-        return -1
+    def get_order(self, uuid):
+        return self.process_command("getorder", "account",
+                                    {'uuid': uuid})
