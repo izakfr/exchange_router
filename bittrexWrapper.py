@@ -25,7 +25,7 @@ class Wrapper:
     # This function acts as an abstraction for the api functions, it will take
     # in the arguments for the command and created the API request
     # It will handle HMAC signatures, urlencoding, and request headers
-    def proccess_command(self, command, requestType, requestArgs={}):
+    def process_command(self, command, requestType, requestArgs={}):
         # Create a nonce by using the current time
         nonce = str(int(time.time() * 10))
         requestURL = self.url.format(requestType=requestType, command=command)
@@ -48,20 +48,19 @@ class Wrapper:
 
     # Return the JSON response with 'Bid', 'Ask', and 'Last' for a given market
     def get_ticker(self, market):
-        return self.proccess_command("getticker", "public",
+        return self.process_command("getticker", "public",
                                      {'market': str(market)})
 
     # Return the JSON response with a list of open orders for a given market
     def get_orderbook(self, market, booktype):
-        return self.proccess_command("getorderbook", "public",
+        return self.process_command("getorderbook", "public",
                                      {'market': str(market),
                                       'type': str(booktype)})
 
     # Return the JSON response with the availble balance for a given currency
     def get_balance(self, currency):
-        # TODO
-        assert(0)
-        return -1
+         return self.process_command("getbalance", "account",
+                                    {'currency': str(currency)})
 
     # Return the JSON response for placing a sell order for a given market with
     # a set price and amount
