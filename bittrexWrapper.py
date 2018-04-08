@@ -22,39 +22,39 @@ class Wrapper:
         self.apiSecret = privateData.readline().rstrip('\n')
 
     # Return the JSON response with 'Bid', 'Ask', and 'Last' for a given market
-    def get_ticker(market):
+    def get_ticker(self, market):
         # TODO
         assert(0)
         return -1
 
     # Return the JSON response with a list of open orders for a given market
-    def get_orderbook(market):
+    def get_orderbook(self, market):
         # TODO
         assert(0)
         return -1
 
     # Return the JSON response with the availble balance for a given currency
-    def get_balance(currency):
+    def get_balance(self, currency):
         # TODO
         assert(0)
         return -1
 
     # Return the JSON response for placing a sell order for a given market with
     # a set price and amount
-    def sell_limit(baseCurrency, counterCurrency, amount, price):
+    def sell_limit(self, baseCurrency, counterCurrency, amount, price):
         # TODO
         assert(0)
         return -1
 
     # Return the JSON response for placing a buy order for a given market with
     # a set price and amount
-    def buy_limit(baseCurrency, counterCurrency, amount, price):
+    def buy_limit(self, baseCurrency, counterCurrency, amount, price):
         # TODO
         assert(0)
         return -1
 
     # Return the JSON response for getting the details of a specfic order
-    def get_order(orderID):
+    def get_order(self, orderID):
         # TODO
         assert(0)
         return -1
