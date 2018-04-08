@@ -20,27 +20,42 @@ class Wrapper:
         privateData = open(filename, "r")
         self.apiKey = privateData.readline().rstrip('\n')
         self.apiSecret = privateData.readline().rstrip('\n')
-        self.url = 'https://bittrex.com/api/v1.1/{req_type}/{cmnd}?'
+        self.url = 'https://bittrex.com/api/v1.1/{requestType}/{command}?'
 
     # This function acts as an abstraction for the api functions, it will take
     # in the arguments for the command and created the API request
     # It will handle HMAC signatures, urlencoding, and request headers
-    def proccess_command(self, cmnd, requestType, requestArgs={}):
-        # TODO
-        assert(0)
-        return -1
+    def proccess_command(self, command, requestType, requestArgs={}):
+        # Create a nonce by using the current time
+        nonce = str(int(time.time() * 10))
+        requestURL = self.url.format(requestType=requestType, command=command)
+
+        # Public requests do not require api keys to be encoded in the url
+        if requestType != 'public':
+            requestURL = "{0}apikey={1}&nonce={2}&".format(
+                requestURL, self.apiKey, nonce)
+
+        # Encode the arguments into the url
+        requestURL += urlencode(requestArgs)
+
+        # Sign the API request with secret key using HMAC
+        apiSignature = hmac.new(self.apiSecret.encode(),
+                           requestURL.encode(),
+                           hashlib.sha512).hexdigest()
+
+        # Send the request and return the JSON
+        return requests.get(requestURL, headers={"apisign": apiSignature}).json()
 
     # Return the JSON response with 'Bid', 'Ask', and 'Last' for a given market
     def get_ticker(self, market):
-        # TODO
-        assert(0)
-        return -1
+        return self.proccess_command("getticker", "public",
+                                     {'market': str(market)})
 
     # Return the JSON response with a list of open orders for a given market
-    def get_orderbook(self, market):
-        # TODO
-        assert(0)
-        return -1
+    def get_orderbook(self, market, booktype):
+        return self.proccess_command("getorderbook", "public",
+                                     {'market': str(market),
+                                      'type': str(booktype)})
 
     # Return the JSON response with the availble balance for a given currency
     def get_balance(self, currency):

@@ -9,13 +9,13 @@ def test_get_ticker(wrapperInstance):
     print ("Testing 'get_ticker'...")
 
     output0 = wrapperInstance.get_ticker("USDT-BTC")
-    assert (output['success'] == 1), "get_ticker failed: API call failed"
+    assert (output0['success'] == 1), "get_ticker failed: API call failed"
 
     output1 = wrapperInstance.get_ticker("USDT-ETH")
-    assert (output['success'] == 1), "get_ticker failed: API call failed"
+    assert (output1['success'] == 1), "get_ticker failed: API call failed"
 
     output2 = wrapperInstance.get_ticker("VOID")
-    assert (output['success'] == 0), "get_ticker failed: Success on fake market"
+    assert (output2['success'] == 0), "get_ticker failed: Success on fake market"
 
     print ("'get_ticker' passed all tests\n")
 
@@ -24,31 +24,31 @@ def test_get_orderbook(wrapperInstance):
     print ("Testing 'get_orderbook'...")
 
     output0 = wrapperInstance.get_orderbook("USDT-ETH", "sell")
-    assert (output['success'] == 1), "get_orderbook 'sell' failed: valid API call failed"
+    assert (output0['success'] == 1), "get_orderbook 'sell' failed: valid API call failed"
 
     output1 = wrapperInstance.get_orderbook("USDT-ETH", "buy")
-    assert (output['success'] == 1), "get_orderbook 'buy' failed: valid API call failed"
+    assert (output1['success'] == 1), "get_orderbook 'buy' failed: valid API call failed"
 
     output2 = wrapperInstance.get_orderbook("USDT-ETH", "sell")
-    assert (output['success'] == 1), "get_orderbook 'both' failed: valid API call failed"
+    assert (output2['success'] == 1), "get_orderbook 'both' failed: valid API call failed"
 
     output3 = wrapperInstance.get_orderbook("USDT-ETH", "NONE")
-    assert (output['success'] == 0), "get_orderbook 'VOID' failed: Success on fake booktype"
+    assert (output3['success'] == 0), "get_orderbook 'VOID' failed: Success on fake booktype"
 
     output4 = wrapperInstance.get_orderbook("VOID", "both")
-    assert (output['success'] == 0), "get_orderbook failed: Success on fake market"
+    assert (output4['success'] == 0), "get_orderbook failed: Success on fake market"
 
-    print ("'get_ticker' passed all tests\n")
+    print ("'get_orderbook' passed all tests\n")
 
 # Test get_balance by checking that success is true
 def test_get_balance(wrapperInstance):
     print ("Testing 'get_balance...'")
 
     output0 = wrapperInstance.get_balance("ETH")
-    assert (output['success'] == 1), "get_balance failed: API call failed on valid currency"
+    assert (output0['success'] == 1), "get_balance failed: API call failed on valid currency"
 
     output1 = wrapperInstance.get_balance("VOID")
-    assert (output['success'] == 0), "get_balance failed: Success on fake currency"
+    assert (output1['success'] == 0), "get_balance failed: Success on fake currency"
 
     print ("'get_balance' passed all tests\n")
 
@@ -70,7 +70,7 @@ def test_orders(wrapperInstance):
 
     # Get the order
     output2 = wrapperInstance.get_order(uuid0)
-    assert (output1['success'] == 1), "get_order failed: API call failed on valid order"
+    assert (output2['success'] == 1), "get_order failed: API call failed on valid order"
     print ("get order successfully")
 
     # Place a sell order
