@@ -52,6 +52,44 @@ def test_get_balance(wrapperInstance):
 
     print ("'get_balance' passed all tests\n")
 
+# Test buy_limit, sell_limit, get_order, and cancel_order, by placing two orders
+# and then immediately cancelling them, and then checking that they were canceled
+def test_orders(wrapperInstance):
+    print ("Testing order placement, cancelling, and fetching...")
+
+    # Place a buy order
+    output0 = wrapperInstance.buy_limit("USDT-BTC", .001, 100)
+    assert (output0['success'] == 1), "buy_limit failed: API call failed on valid market"
+    uuid0 = output0['result']['uuid']
+    print ("buy limit order placed successfully")
+
+    # Cancel the buy order
+    output1 = wrapperInstance.cancel_order(uuid0)
+    assert (output1['success'] == 1), "cancel_order failed: API call failed on open order"
+    print ("buy limit order canceled successfully")
+
+    # Get the order
+    output2 = wrapperInstance.get_order(uuid0)
+    assert (output1['success'] == 1), "get_order failed: API call failed on valid order"
+    print ("get order successfully")
+
+    # Place a sell order
+    output3 = wrapperInstance.sell_limit("USDT-BTC", .001, 50000)
+    assert (output3['success'] == 1), "sell_limit failed: API call failed on valid market"
+    uuid1 = output3['result']['uuid']
+    print ("sell limit order placed successfully")
+
+    # Cancel the sell order
+    output4 = wrapperInstance.cancel_order(uuid1)
+    assert (output4['success'] == 1), "cancel_order failed: API call failed on open order"
+    print ("sell limit order canceled successfully")
+
+    # Get the order
+    output5 = wrapperInstance.get_order(uuid1)
+    assert (output5['success'] == 1), "get_order failed: API call failed on valid order"
+    print ("get order successfully")
+
+    print ("'buy_limit', 'sell_limit', 'cancel_order', and 'get_order' passed all tests\n")
 
 # Main function will call all of the tests
 def main():
@@ -60,6 +98,10 @@ def main():
 
     test_get_ticker(wrapperInstance)
     test_get_orderbook(wrapperInstance)
+    test_get_balance(wrapperInstance)
+    test_orders(wrapperInstance)
+
+    print ("All tests passed successfully!")
 
 if __name__=="__main__":
     main()
