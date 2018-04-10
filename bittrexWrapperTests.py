@@ -1,4 +1,4 @@
-# This file will be used to test the Bittrex API wrapperself.
+# This file will be used to test the Bittrex API wrapper.
 # Created by Izak Fritz 04-07-18
 # For the Stably team
 
