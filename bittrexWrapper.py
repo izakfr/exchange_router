@@ -89,3 +89,21 @@ class Wrapper:
     def get_order(self, uuid):
         return self.process_command("getorder", "account",
                                     {'uuid': uuid})
+
+    # Return True/False based on API response
+    def is_valid_currency(self, currency):
+        response = get_ticker(currency)
+        if response['success'] == 1:
+            return True
+        else:
+            return False
+
+    # Return True/False based on API response
+    def is_valid_market(self, currency0, currency1):
+        market = str(currency1 + "-" + currency0)
+        response = self.process_command("getmarketsummary", "public",
+                                        {'market': market})
+        if response['success'] == 1:
+            return True
+        else:
+            return False
