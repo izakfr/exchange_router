@@ -23,32 +23,32 @@ def get_fill_price_test():
     # All these API calls should be successful
     testURL0 = baseURL.format("ETH", "USDT", 1)
     response0 = requests.get(testURL0).json()
-    assert (response0['success'] == 1), "get_fill_price failed: API call failed"
+    assert (response0['success'] == 1), "get-fill-price failed: API call failed"
 
     testURL1 = baseURL.format("ETH", "USDT", 100)
     response1 = requests.get(testURL1).json()
-    assert (response1['success'] == 1), "get_fill_price failed: API call failed"
+    assert (response1['success'] == 1), "get-fill-price failed: API call failed"
 
     testURL2 = baseURL.format("BTC", "USDT", 1)
     response2 = requests.get(testURL2).json()
-    assert (response2['success'] == 1), "get_fill_price failed: API call failed"
+    assert (response2['success'] == 1), "get-fill-price failed: API call failed"
 
     testURL3 = baseURL.format("BTC", "USDT", 100)
     response3 = requests.get(testURL3).json()
-    assert (response3['success'] == 1), "get_fill_price failed: API call failed"
+    assert (response3['success'] == 1), "get-fill-price failed: API call failed"
 
     # All these API calls should not be successful
     testURL4 = baseURL.format("VOID", "USDT", 1)
     response4 = requests.get(testURL4).json()
-    assert (response4['success'] == 0), "get_fill_price failed: success on fake market"
+    assert (response4['success'] == 0), "get-fill-price failed: success on fake market"
 
     testURL5 = baseURL.format("ETH", "VOID", 1)
     response5 = requests.get(testURL5).json()
-    assert (response5['success'] == 0), "get_fill_price failed: success on fake market"
+    assert (response5['success'] == 0), "get-fill-price failed: success on fake market"
 
     testURL6 = baseURL.format("ETH", "USDT", -1)
     response6 = requests.get(testURL6).json()
-    assert (response6['success'] == 0), "get_fill_price failed: success on negative quantity"
+    assert (response6['success'] == 0), "get-fill-price failed: success on negative quantity"
 
     print ("get fill price passed all tests!\n")
 
@@ -67,22 +67,22 @@ def get_currency_balance_test():
     # All these API calls should be successful
     testURL0 = baseURL.format("ETH")
     response0 = requests.get(testURL0).json()
-    assert (response0['success'] == 1), "get_currency_balance failed: API call failed"
+    assert (response0['success'] == 1), "get-currency-balance failed: API call failed"
 
     testURL1 = baseURL.format("USDT")
     response1 = requests.get(testURL1).json()
-    assert (response1['success'] == 1), "get_currency_balance failed: API call failed"
+    assert (response1['success'] == 1), "get-currency-balance failed: API call failed"
 
     testURL2 = baseURL.format("BTC")
     response2 = requests.get(testURL2).json()
-    assert (response2['success'] == 1), "get_currency_balance failed: API call failed"
+    assert (response2['success'] == 1), "get-currency-balance failed: API call failed"
 
     # All these API calls should not be successful
     testURL3 = baseURL.format("VOID")
     response3 = requests.get(testURL3).json()
-    assert (response3['success'] == 0), "get_currency_balance failed: success on fake currency"
+    assert (response3['success'] == 0), "get-currency-balance failed: success on fake currency"
 
-    print ("get fill price passed all tests!\n")
+    print ("get currency balance passed all tests!\n")
 
 # Test send_order
 # The API call send_order should return a JSON object with the structure:
@@ -99,23 +99,18 @@ def send_order_test():
     data0 = {"base-currency": "ETH", "counter-currency": "USDT",
              "order-type": "buy", "amount": .01}
     response0 = requests.post(baseURL, data0).json()
-    assert (response0['success'] == 1), "get_currency_balance failed: API call failed"
+    assert (response0['success'] == 1), "send-order failed: API call failed"
 
     data1 = {"base-currency": "BTC", "counter-currency": "USDT",
              "order-type": "buy", "amount": .0005}
     response1 = requests.post(baseURL, data1).json()
-    assert (response1['success'] == 1), "get_currency_balance failed: API call failed"
+    assert (response1['success'] == 1), "send-order failed: API call failed"
 
     # All these API calls should not be successful
-    data2 = {"base-currency": "ETH", "counter-currency": "USDT",
-             "order-type": "buy", "amount": 1000}
-    response2 = requests.post(baseURL, data2).json()
-    assert (response2['success'] == 0), "get_currency_balance failed: API call success unavailable quantity"
-
     data3 = {"base-currency": "ETH", "counter-currency": "USDT",
              "order-type": "buy", "amount": -1}
     response3 = requests.post(baseURL, data3).json()
-    assert (response3['success'] == 0), "get_currency_balance failed: API call success negative quantity"
+    assert (response3['success'] == 0), "send-order failed: API call success on negative quantity"
 
     print ("send order passed all tests!\n")
 

@@ -92,11 +92,11 @@ class Wrapper:
 
     # Return True/False based on API response
     def is_valid_currency(self, currency):
-        response = get_ticker(currency)
-        if response['success'] == 1:
-            return True
-        else:
-            return False
+        response = self.process_command("getcurrencies", "public")
+        for i in response['result']:
+            if (i['Currency'] == currency):
+                return True
+        return False
 
     # Return True/False based on API response
     def is_valid_market(self, currency0, currency1):
