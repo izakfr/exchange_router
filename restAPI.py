@@ -47,8 +47,9 @@ def get_currency_balance():
     elif not wrapper.is_valid_currency(request.args['currency']):
         return jsonify({'success': False, 'message': 'invalid currency'})
 
-    # TODO: Retun balance
-    return jsonify({'success': True})
+    # Get currency balance from Bittrex
+    balance = wrapper.get_balance(request.args['currency'])['result']['Balance']
+    return jsonify({'success': True, 'balance': balance})
 
 # App route for the 'send-order' api call
 @app.route('/api/v1.0/send-order', methods=['POST'])
