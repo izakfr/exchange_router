@@ -46,6 +46,10 @@ class Wrapper:
         # Send the request and return the JSON
         return requests.get(requestURL, headers={"apisign": apiSignature}).json()
 
+    # Format market ticker
+    def format_ticker(self, baseCurrency, counterCurrency):
+        return str(counterCurrency) + "-" + str(baseCurrency)
+
     # Return the JSON response with 'Bid', 'Ask', and 'Last' for a given market
     def get_ticker(self, market):
         return self.process_command("getticker", "public",
