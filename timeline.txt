@@ -10,6 +10,7 @@ Just a general overview nothing specific yet
 
 6. Connect our api and the Bittrex api - NEXT!
 7. Run tests to check that check order placement and fulfillment - NEXT!
+8. Add logic to continuously watch for order fulfillment 
 
-8. "Dockerize" the project
-9. Add support for Gemini
+9. "Dockerize" the project
+10. Add support for Gemini
