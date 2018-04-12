@@ -31,8 +31,35 @@ def get_fill_price():
         # Invalid market
         return jsonify({'success': False, 'message': 'invalid market'})
 
-    # TODO: Return fill price
-    return jsonify({'success': True})
+    # Return fill price
+    balanceToFill = float(request.args['quantity'])
+    sumFilled = 0
+    avgPrice = 0
+    formattedTicker = wrapper.format_ticker(request.args['base-currency'],
+                                            request.args['counter-currency'])
+    requestResponse = wrapper.get_orderbook(formattedTicker, "buy")
+
+    # Iterate through orders in the orderbook, until we find enough orders to
+    # fill our quantity
+    for order in requestResponse['result']:
+        tempQuantity = float(order['Quantity'])
+        tempPrice = float(order['Rate'])
+
+        # If buying this order would put balanceToFill below 0, only buy part
+        # of the order
+        if (balanceToFill - tempQuantity < 0):
+            # Update the average price and break (done with our whole order)
+            avgPrice = (avgPrice * sumFilled + balanceToFill * tempPrice)
+            avgPrice /= (balanceToFill + sumFilled)
+            break
+        else:
+            # Update the average price, sumFilled, and balanceToFill
+            avgPrice = (avgPrice * sumFilled + tempQuantity * tempPrice)
+            avgPrice /= (tempQuantity + sumFilled)
+            sumFilled += tempQuantity
+            balanceToFill -= tempQuantity
+
+    return jsonify({'success': True, 'fill-price': avgPrice})
 
 # App route for the 'get-currency-balance' api call
 @app.route('/api/v1.0/get-currency-balance', methods=['GET'])
