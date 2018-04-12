@@ -24,18 +24,22 @@ def get_fill_price_test():
     testURL0 = baseURL.format("ETH", "USDT", 1)
     response0 = requests.get(testURL0).json()
     assert (response0['success'] == 1), "get-fill-price failed: API call failed"
+    print("Fill price for 1 ETH: " + str(response0['fill-price']))
 
     testURL1 = baseURL.format("ETH", "USDT", 100)
     response1 = requests.get(testURL1).json()
     assert (response1['success'] == 1), "get-fill-price failed: API call failed"
+    print("Fill price for 100 ETH: " + str(response1['fill-price']))
 
     testURL2 = baseURL.format("BTC", "USDT", 1)
     response2 = requests.get(testURL2).json()
     assert (response2['success'] == 1), "get-fill-price failed: API call failed"
+    print("Fill price for 1 BTC: " + str(response2['fill-price']))
 
     testURL3 = baseURL.format("BTC", "USDT", 100)
     response3 = requests.get(testURL3).json()
     assert (response3['success'] == 1), "get-fill-price failed: API call failed"
+    print("Fill price for 100 BTC: " + str(response3['fill-price']))
 
     # All these API calls should not be successful
     testURL4 = baseURL.format("VOID", "USDT", 1)
@@ -68,14 +72,17 @@ def get_currency_balance_test():
     testURL0 = baseURL.format("ETH")
     response0 = requests.get(testURL0).json()
     assert (response0['success'] == 1), "get-currency-balance failed: API call failed"
+    print("Balance of ETH: " + str(response0['balance']))
 
     testURL1 = baseURL.format("USDT")
     response1 = requests.get(testURL1).json()
     assert (response1['success'] == 1), "get-currency-balance failed: API call failed"
+    print("Balance of USD: " + str(response1['balance']))
 
     testURL2 = baseURL.format("BTC")
     response2 = requests.get(testURL2).json()
     assert (response2['success'] == 1), "get-currency-balance failed: API call failed"
+    print("Balance of BTC: " + str(response2['balance']))
 
     # All these API calls should not be successful
     testURL3 = baseURL.format("VOID")
