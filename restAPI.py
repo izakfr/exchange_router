@@ -13,52 +13,75 @@ app = Flask(__name__)
 # Declare an instance of a Bittrex wrapper
 wrapper = bittrexWrapper.Wrapper("keys.txt")
 
+# Function to get average fill price based on a Bittrex book
+# Requires a Bittrex API respose for getorderbook
+def get_average_fill_price(requestResponse, quantity):
+    quantityToFill = quantity
+    avgPrice = 0
+    sumFilled = 0
+    for order in requestResponse['result']:
+        tempQuantity = float(order['Quantity'])
+        tempPrice = float(order['Rate'])
+
+        # If buying this order would put quantityToFill below 0, only buy part
+        # of the order
+        if (quantityToFill - tempQuantity < 0):
+            # Update the average price and break (done with our whole order)
+            avgPrice = (avgPrice * sumFilled + quantityToFill * tempPrice)
+            avgPrice /= (quantityToFill + sumFilled)
+            break
+        else:
+            # Update the average price, sumFilled, and quantityToFill
+            avgPrice = (avgPrice * sumFilled + tempQuantity * tempPrice)
+            avgPrice /= (tempQuantity + sumFilled)
+            sumFilled += tempQuantity
+            quantityToFill -= tempQuantity
+
+    return avgPrice
+
+# Function to calculate what our ask price should be for a sell and what our
+# bid price should be for a buy. Due to the nature of limit orders, if we place
+# an ask lower than the highest bid, we will get filled at that bid price.
+# Therefore we place a bid/ask deep enough into the book to get fulled filled.
+def get_rate(requestResponse, quantity, marketSide):
+    multiplicationFactor = 1.005 if marketSide == 'buy' else .995
+    quantityToFill = quantity
+    sumFilled = 0
+    for order in requestResponse['result']:
+        tempQuantity = float(order['Quantity'])
+        tempPrice = float(order['Rate'])
+
+        if (quantityToFill - tempQuantity < 0):
+            return float('%.8f'%(tempPrice * multiplicationFactor))
+        else:
+            quantityToFill -= tempQuantity
+
 # App route for the 'get-fill-price' api call
 @app.route('/api/v1.0/get-fill-price', methods=['GET'])
 def get_fill_price():
     # Check that all three arguments are present, and only three are present
     arguments = ['base-currency', 'counter-currency', 'quantity']
 
+    # Check that the number of arguments are correct
     if not all(args in arguments for args in request.args) or not len(request.args) == 3:
-        # Invalid arguments
         return jsonify({'success': False, 'message': 'invalid arguments'})
-    elif float(request.args['quantity']) < 0:
-        # Invalid arguments
+
+    # Check for valid quantity
+    if float(request.args['quantity']) < 0:
         return jsonify({'success': False, 'message': 'invalid quantity'})
+
     # Check that the market is valid
     elif not wrapper.is_valid_market(request.args['base-currency'],
                                      request.args['counter-currency']):
-        # Invalid market
         return jsonify({'success': False, 'message': 'invalid market'})
 
     # Return fill price
-    balanceToFill = float(request.args['quantity'])
-    sumFilled = 0
-    avgPrice = 0
+    quantityToFill = float(request.args['quantity'])
     formattedTicker = wrapper.format_ticker(request.args['base-currency'],
                                             request.args['counter-currency'])
-    requestResponse = wrapper.get_orderbook(formattedTicker, "buy")
+    orderbookResponse = wrapper.get_orderbook(formattedTicker, "buy")
 
-    # Iterate through orders in the orderbook, until we find enough orders to
-    # fill our quantity
-    for order in requestResponse['result']:
-        tempQuantity = float(order['Quantity'])
-        tempPrice = float(order['Rate'])
-
-        # If buying this order would put balanceToFill below 0, only buy part
-        # of the order
-        if (balanceToFill - tempQuantity < 0):
-            # Update the average price and break (done with our whole order)
-            avgPrice = (avgPrice * sumFilled + balanceToFill * tempPrice)
-            avgPrice /= (balanceToFill + sumFilled)
-            break
-        else:
-            # Update the average price, sumFilled, and balanceToFill
-            avgPrice = (avgPrice * sumFilled + tempQuantity * tempPrice)
-            avgPrice /= (tempQuantity + sumFilled)
-            sumFilled += tempQuantity
-            balanceToFill -= tempQuantity
-
+    avgPrice = get_average_fill_price(orderbookResponse, quantityToFill)
     return jsonify({'success': True, 'fill-price': avgPrice})
 
 # App route for the 'get-currency-balance' api call
@@ -70,8 +93,9 @@ def get_currency_balance():
     if not all(args in arguments for args in request.args) or not len(request.args) == 1:
         # Invalid arguments
         return jsonify({'success': False, 'message': 'invalid arguments'})
+
     # Check for valid currency
-    elif not wrapper.is_valid_currency(request.args['currency']):
+    if not wrapper.is_valid_currency(request.args['currency']):
         return jsonify({'success': False, 'message': 'invalid currency'})
 
     # Get currency balance from Bittrex
@@ -86,19 +110,58 @@ def send_order():
     # Check that all four arguments are present, and only three are present
     if not all(args in arguments for args in request.form) or not len(request.form) == 4:
         return jsonify({'success': False, 'message': 'invalid arguments'})
+
     # Check for valid amount
-    elif float(request.form['amount']) < 0:
+    if float(request.form['amount']) < 0:
         return jsonify({'success': False, 'message': 'invalid amount'})
+
     # Check for valid market
-    elif not wrapper.is_valid_market(request.form['base-currency'],
-                                     request.form['counter-currency']):
+    if not wrapper.is_valid_market(request.form['base-currency'],
+                                   request.form['counter-currency']):
         return jsonify({'success': False, 'message': 'invalid market'})
+
     # Check for valid order-type
-    elif not (request.form['order-type'] == 'buy' or request.form['order-type'] == 'sell'):
+    if not (request.form['order-type'] == 'buy' or request.form['order-type'] == 'sell'):
         return jsonify({'success': False, 'message': 'invalid order-type'})
 
-    # TODO: Send order
-    return jsonify({'success': True})
+    print ("TESTING...")
+
+    # Get rate to send order at
+    quantity = float(request.form['amount'])
+    formattedTicker = wrapper.format_ticker(request.form['base-currency'],
+                                            request.form['counter-currency'])
+    orderbookResponse = wrapper.get_orderbook(formattedTicker, request.form['order-type'])
+    orderRate = get_rate(orderbookResponse, quantity, request.form['order-type'])
+
+    # Check that availble balance is high enough
+    if request.form['order-type'] == 'buy':
+        balance = wrapper.get_balance(request.form['counter-currency'])['result']['Balance']
+        # Check that balance of counter-currency * rate is greater than quantity needed
+        if balance * orderRate < quantity:
+            return jsonify({'success': False, 'message': 'insufficient balance'})
+    else:
+        balance = wrapper.get_balance(request.form['base-currency'])['result']['Balance']
+        # Check that balance is greater than quantity to sell
+        if balance < quantity:
+            return jsonify({'success': False, 'message': 'insufficient balance'})
+
+    # All checks passed, place order
+    if request.form['order-type'] == 'buy':
+        apiResponse = wrapper.buy_limit(formattedTicker, quantity, orderRate)
+        if apiResponse['success'] == True:
+            return jsonify({'success': True, 'message': 'order placed'})
+        else:
+            # Buy request failed
+            return jsonify({'success': False, 'message': 'failed to place order'})
+    else:
+        apiResponse = wrapper.sell_limit(formattedTicker, quantity, orderRate)
+        if apiResponse['success'] == True:
+            return jsonify({'success': False, 'message': 'failed to place order'})
+        else:
+            # Sell request failed
+            return jsonify({'success': True, 'message': 'order placed'})
+
+
 
 if __name__ == '__main__':
     app.run()
