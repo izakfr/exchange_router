@@ -8,9 +8,9 @@ Just a general overview nothing specific yet
 4. Build a REST api using Python Flask - DONE!
 5. Enable the API to take the three required requests - DONE!
 
-6. Connect our api and the Bittrex api - NEXT!
-7. Run tests to check that check order placement and fulfillment - NEXT!
-8. Add logic to continuously watch for order fulfillment 
+6. Connect our api and the Bittrex api - DONE!
+7. Run tests to check that check order placement and fulfillment - DONE!
+8. Add logic to continuously watch for order fulfillment
 
 9. "Dockerize" the project
 10. Add support for Gemini
