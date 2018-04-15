@@ -68,8 +68,7 @@ class Wrapper:
 
     # Return the JSON response for placing a sell order for a given market with
     # a set price and amount
-    def sell_limit(self, baseCurrency, counterCurrency, amount, price):
-        market = baseCurrency + "-" + counterCurrency
+    def sell_limit(self, market, amount, price):
         return self.process_command("selllimit", "market",
                                     {'market': market,
                                      'quantity': amount,
@@ -77,8 +76,7 @@ class Wrapper:
 
     # Return the JSON response for placing a buy order for a given market with
     # a set price and amount
-    def buy_limit(self, baseCurrency, counterCurrency, amount, price):
-        market = baseCurrency + "-" + counterCurrency
+    def buy_limit(self, market, amount, price):
         return self.process_command("buylimit", "market",
                                     {'market': market,
                                      'quantity': amount,
