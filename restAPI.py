@@ -30,8 +30,7 @@ def api_init():
         while True:
             # TODO: acquire lock and check orders
             exchangeLock.acquire()
-            print ("checking orders...")
-
+            
             # If queue is not empty get all orders and check on them
             size = orderQueue.qsize()
             for i in range(0, size):
