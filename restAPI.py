@@ -10,54 +10,15 @@ from flask import request
 from queue import Queue
 
 import bittrexWrapper
-
-# Function to get average fill price based on a Bittrex book
-# Requires a Bittrex API respose for getorderbook
-def get_average_fill_price(requestResponse, quantity):
-    quantityToFill = quantity
-    avgPrice = 0
-    sumFilled = 0
-    for order in requestResponse['result']:
-        tempQuantity = float(order['Quantity'])
-        tempPrice = float(order['Rate'])
-
-        # If buying this order would put quantityToFill below 0, only buy part
-        # of the order
-        if (quantityToFill - tempQuantity < 0):
-            # Update the average price and break (done with our whole order)
-            avgPrice = (avgPrice * sumFilled + quantityToFill * tempPrice)
-            avgPrice /= (quantityToFill + sumFilled)
-            break
-        else:
-            # Update the average price, sumFilled, and quantityToFill
-            avgPrice = (avgPrice * sumFilled + tempQuantity * tempPrice)
-            avgPrice /= (tempQuantity + sumFilled)
-            sumFilled += tempQuantity
-            quantityToFill -= tempQuantity
-
-    return avgPrice
-
-# Function to calculate what our ask price should be for a sell and what our
-# bid price should be for a buy. Due to the nature of limit orders, if we place
-# an ask lower than the highest bid, we will get filled at that bid price.
-# Therefore we place a bid/ask deep enough into the book to get fulled filled.
-def get_rate(requestResponse, quantity, marketSide):
-    multiplicationFactor = 1.005 if marketSide == 'buy' else .995
-    quantityToFill = quantity
-    sumFilled = 0
-    for order in requestResponse['result']:
-        tempQuantity = float(order['Quantity'])
-        tempPrice = float(order['Rate'])
-
-        if (quantityToFill - tempQuantity < 0):
-            return float('%.8f'%(tempPrice * multiplicationFactor))
-        else:
-            quantityToFill -= tempQuantity
+import restAPIHelpers as helpers
 
 app = Flask(__name__)
 
 # Thread lock for concurrent requests
 exchangeLock = threading.Lock()
+
+# Order queue to continously check for filled orders
+orderQueue = Queue()
 
 # Declare an instance of a Bittrex wrapper
 wrapper = bittrexWrapper.Wrapper("keys.txt")
@@ -93,7 +54,7 @@ def get_fill_price():
                                             request.args['counter-currency'])
     orderbookResponse = wrapper.get_orderbook(formattedTicker, "buy")
 
-    avgPrice = get_average_fill_price(orderbookResponse, quantityToFill)
+    avgPrice = helpers.get_average_fill_price(orderbookResponse, quantityToFill)
 
     # Release lock and return
     exchangeLock.release()
@@ -159,7 +120,7 @@ def send_order():
     formattedTicker = wrapper.format_ticker(request.form['base-currency'],
                                             request.form['counter-currency'])
     orderbookResponse = wrapper.get_orderbook(formattedTicker, request.form['order-type'])
-    orderRate = get_rate(orderbookResponse, quantity, request.form['order-type'])
+    orderRate = helpers.get_rate(orderbookResponse, quantity, request.form['order-type'])
 
     # Check that availble balance is high enough
     if request.form['order-type'] == 'buy':
@@ -178,7 +139,9 @@ def send_order():
     # All checks passed, place order
     if request.form['order-type'] == 'buy':
         apiResponse = wrapper.buy_limit(formattedTicker, quantity, orderRate)
+        # If order was successful add order to orderQueue and return
         if apiResponse['success'] == True:
+            orderQueue.put(apiResponse['result']['uuid'])
             exchangeLock.release()
             return jsonify({'success': True, 'message': 'order placed'})
         else:
@@ -187,7 +150,10 @@ def send_order():
             return jsonify({'success': False, 'message': 'failed to place order'})
     else:
         apiResponse = wrapper.sell_limit(formattedTicker, quantity, orderRate)
+        # If order was successful add order to orderQueue and return
         if apiResponse['success'] == True:
+            # Add order uuid to the orderQueue
+            orderQueue.put(apiResponse['result']['uuid'])
             exchangeLock.release()
             return jsonify({'success': False, 'message': 'failed to place order'})
         else:
