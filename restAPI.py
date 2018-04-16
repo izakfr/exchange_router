@@ -23,6 +23,38 @@ orderQueue = Queue()
 # Declare an instance of a Bittrex wrapper
 wrapper = bittrexWrapper.Wrapper("keys.txt")
 
+# Continously checks for new orders
+@app.before_first_request
+def api_init():
+    def check_orders():
+        while True:
+            # TODO: acquire lock and check orders
+            exchangeLock.acquire()
+            print ("checking orders...")
+
+            # If queue is not empty get all orders and check on them
+            size = orderQueue.qsize()
+            for i in range(0, size):
+                orderUUID = orderQueue.get()
+                orderResponse = wrapper.get_order(orderUUID)['result']
+                # If order is filled, print it out to a file
+                if orderResponse['IsOpen'] == False:
+                    helpers.output_to_file("orders.txt",
+                                           orderResponse['Exchange'],
+                                           orderResponse['Price'],
+                                           orderResponse['Quantity'],
+                                           orderResponse['CommissionPaid'],
+                                           "Bittrex")
+                else:
+                    # Put the order back on the queue
+                    orderQueue.put(orderUUID)
+
+            exchangeLock.release()
+            time.sleep(10)
+
+    orderThread = threading.Thread(target=check_orders)
+    orderThread.start()
+
 # App route for the 'get-fill-price' api call
 @app.route('/api/v1.0/get-fill-price', methods=['GET'])
 def get_fill_price():

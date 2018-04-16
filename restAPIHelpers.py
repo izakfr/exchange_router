@@ -2,7 +2,22 @@
 # Created by Izak Fritz 04-15-18
 # For the Stably team
 
+import json
+
 # Define functions below:
+
+# Take the order information and output to file in json format
+def output_to_file(file, market, rate, amount, fees, exchange):
+    data = {'market': market,
+            'total-cost': rate,
+            'amount': amount,
+            'fees': fees,
+            'exchange': exchange}
+
+    openFile = open(file, 'a')
+    json.dump(data, openFile)
+    openFile.write("\n")
+    openFile.close()
 
 # Function to get average fill price based on a Bittrex book
 # Requires a Bittrex API respose for getorderbook
