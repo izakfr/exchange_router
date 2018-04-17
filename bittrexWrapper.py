@@ -123,7 +123,7 @@ class Wrapper:
     def get_balance(self, currency):
         apiResponse = self.process_command('getbalance', 'account',
                                            {'currency': str(currency)})
-                                           
+
         # If the API call was successful return the corresponding dictionary
         if apiResponse['success'] == True:
             return {'success': True,
@@ -208,10 +208,17 @@ class Wrapper:
 
         # If the API call was successful return the corresponding dictionary
         if apiResponse['success'] == True:
+            # Set the type to a uniform type
+            type = ''
+            if orderResponse['type'] == 'LIMIT_BUY'
+                type = "Repurchase"
+            else:
+                type = "Issue"
+            
             return {'success': True,
                     'uuid': apiResponse['result']['OrderUuid'],
                     'market': apiResponse['result']['Exchange'],
-                    'type': float(apiResponse['result']['Type']),
+                    'type': type,
                     'price': float(apiResponse['result']['Price']),
                     'commissionPaid': float(apiResponse['result']['CommissionPaid']),
                     'timestamp': apiResponse['result']['Opened']
