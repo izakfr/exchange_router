@@ -3,15 +3,15 @@
 # For the Stably team
 
 import json
+import time
 
 # Define functions below:
 
 # Take the order information and output to file in json format
-def output_to_file(file, market, rate, amount, fees, exchange):
-    data = {'market': market,
-            'total-cost': rate,
-            'amount': amount,
-            'fees': fees,
+def output_to_file(file, type, fiatTransacted, exchange, timestamp):
+    data = {'type': type, 
+            'fiatTransacted': fiatTransacted,
+            'timestamp': timestamp,
             'exchange': exchange}
 
     openFile = open(file, 'a')

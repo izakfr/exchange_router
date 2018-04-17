@@ -38,11 +38,11 @@ def api_init():
                 orderResponse = wrapper.get_order(orderUUID)
                 # If order is filled, print it out to a file
                 if orderResponse['isOpen'] == False:
+                    fiatTransacted = orderResponse['price'] +  orderResponse['commissionPaid']
                     helpers.output_to_file("orders.txt",
-                                           orderResponse['market'],
-                                           orderResponse['price'],
-                                           orderResponse['quantity'],
-                                           orderResponse['commissionPaid'],
+                                           orderResponse['type'],
+                                           fiatTransacted,
+                                           orderResponse['timestamp'],
                                            "Bittrex")
                 else:
                     # Put the order back on the queue
