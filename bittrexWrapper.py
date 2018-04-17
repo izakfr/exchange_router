@@ -9,22 +9,23 @@ import hashlib
 import json
 import requests
 import time
+from flask import jsonify
 
 '''
 This class is used to make requests to the Bittrex API. It abstracts away the
 url request formatting from the user.
 
-Function calls to this wrapper will come in the following form as a JSON object
+Function calls to this wrapper will come in the following form as a dictionary
 {
-    "success": BOOLEAN,
-    "field1": TYPE,
-    "field2": TYPE
+    'success': BOOLEAN,
+    'field1': TYPE,
+    'field2': TYPE
 }
 '''
 class Wrapper:
     '''
     Requires a filename which must be the name of a .txt file the first line
-    must be the API "key", and the second line the API "secret".
+    must be the API 'key', and the second line the API 'secret'.
     '''
     def __init__(self, filename):
         privateData = open(filename, "r")
@@ -66,103 +67,153 @@ class Wrapper:
     Return the bid, ask, and last price for a given market
     Response:
     {
-        "success": BOOLEAN,
-        "Bid": FLOAT,
-        "Ask": FLOAT,
-        "Last": FLOAT
+        'success': BOOLEAN,
+        'bid': FLOAT,
+        'ask': FLOAT,
+        'last': FLOAT
     }
     '''
     def get_ticker(self, market):
-        return self.process_command("getticker", "public",
-                                     {'market': str(market)})
+        apiResponse = self.process_command('getticker', 'public',
+                                           {'market': str(market)})
+
+        # If the API call was successful return the corresponding dictionary
+        if apiResponse['success'] == True:
+            return {'success': True,
+                    'bid': float(apiResponse['result']['Bid']),
+                    'ask': float(apiResponse['result']['Ask']),
+                    'last': float(apiResponse['result']['Last'])}
+        else:
+            return {'success': False}
 
     '''
     Return the list of open orders for a given market
     Response:
     {
-        "success": BOOLEAN,
-        "book": [{
-                    "Quantity": FLOAT
-                    "Rate": FLOAT
+        'success': BOOLEAN,
+        'book': [{
+                    'Quantity': FLOAT
+                    'Rate': FLOAT
                  }, {
-                    "Quantity": FLOAT
-                    "Rate": FLOAT
+                    'Quantity': FLOAT
+                    'Rate': FLOAT
                  }]
     }
     '''
     def get_orderbook(self, market, booktype):
-        return self.process_command("getorderbook", "public",
-                                     {'market': str(market),
-                                      'type': str(booktype)})
+        apiResponse = self.process_command('getorderbook', 'public',
+                                           {'market': str(market),
+                                            'type': str(booktype)})
+
+        # If the API call was successful return the corresponding dictionary
+        if apiResponse['success'] == True:
+            return {'success': True,
+                    'book': apiResponse['result']}
+        else:
+            return {'success': False}
 
     '''
     Return the availble balance for a given currency
     Response:
     {
-        "success": BOOLEAN,
-        "Balance": FLOAT
+        'success': BOOLEAN,
+        'balance': FLOAT
     }
     '''
     def get_balance(self, currency):
-         return self.process_command("getbalance", "account",
-                                    {'currency': str(currency)})
+        apiResponse = self.process_command('getbalance', 'account',
+                                           {'currency': str(currency)})
+        # If the API call was successful return the corresponding dictionary
+        if apiResponse['success'] == True:
+            return {'success': True,
+                    'balance': float(apiResponse['result']['Balance'])}
+        else:
+            return {'success': False}
 
     '''
     Place a sell order for a given market with a set price and amount
     Response:
     {
-        "success": BOOLEAN,
-        "uuid": STRING
+        'success': BOOLEAN,
+        'uuid': STRING
     }
     '''
     def sell_limit(self, market, amount, price):
-        return self.process_command("selllimit", "market",
-                                    {'market': market,
-                                     'quantity': amount,
-                                     'rate': price})
+        apiResponse = self.process_command('selllimit', 'market',
+                                           {'market': market,
+                                            'quantity': amount,
+                                            'rate': price})
+        # If the API call was successful return the corresponding dictionary
+        if apiResponse['success'] == True:
+            return {'success': True,
+                    'uuid': apiResponse['result']['uuid']}
+        else:
+            return {'success': False}
 
     '''
     Place a buy order for a given market with a set price and amount
     Response:
     {
-        "success": BOOLEAN,
-        "uuid": STRING
+        'success': BOOLEAN,
+        'uuid': STRING
     }
     '''
     def buy_limit(self, market, amount, price):
-        return self.process_command("buylimit", "market",
-                                    {'market': market,
-                                     'quantity': amount,
-                                     'rate': price})
+        apiResponse = self.process_command('buylimit', 'market',
+                                            {'market': market,
+                                             'quantity': amount,
+                                             'rate': price})
+        # If the API call was successful return the corresponding dictionary
+        if apiResponse['success'] == True:
+            return {'success': True,
+                    'uuid': apiResponse['result']['uuid']}
+        else:
+            return {'success': False}
 
     '''
     Cancel an order with the specific uuid
     {
-        "success": BOOLEAN
+        'success': BOOLEAN
     }
     '''
     def cancel_order(self, uuid):
-        return self.process_command("cancel", "market",
-                                    {'uuid': uuid})
+        apiResponse = self.process_command('cancel', 'market',
+                                           {'uuid': uuid})
+        # If the API call was successful return the corresponding dictionary
+        if apiResponse['success'] == True:
+            return {'success': True}
+        else:
+            return {'success': False}
 
     '''
     Return the details of a specfic order
     {
-        "success": BOOLEAN,
-        "uuid": STRING,
-        "market": STRING,
-        "quantity": FLOAT,
-        "commissionPaid": FLOAT,
-        "isOpen": BOOLEAN
+        'success': BOOLEAN,
+        'uuid': STRING,
+        'market': STRING,
+        'quantity': FLOAT,
+        'commissionPaid': FLOAT,
+        'isOpen': BOOLEAN
     }
     '''
     def get_order(self, uuid):
-        return self.process_command("getorder", "account",
-                                    {'uuid': uuid})
+        apiResponse = self.process_command('getorder', 'account',
+                                           {'uuid': uuid})
+
+        # If the API call was successful return the corresponding dictionary
+        if apiResponse['success'] == True:
+            return {'success': True,
+                    'uuid': apiResponse['result']['OrderUuid'],
+                    'market': apiResponse['result']['Exchange'],
+                    'quantity': apiResponse['result']['Quantity'],
+                    'commissionPaid': apiResponse['result']['CommissionPaid'],
+                    'isOpen': apiResponse['result']['isOpen']}
+        else:
+            return {'success': False}
 
     # Return True/False based on API response
     def is_valid_currency(self, currency):
-        response = self.process_command("getcurrencies", "public")
+        response = self.process_command('getcurrencies', 'public')
         for i in response['result']:
             if (i['Currency'] == currency):
                 return True
@@ -170,8 +221,8 @@ class Wrapper:
 
     # Return True/False based on API response
     def is_valid_market(self, currency0, currency1):
-        market = str(currency1 + "-" + currency0)
-        response = self.process_command("getmarketsummary", "public",
+        market = str(currency1 + '-' + currency0)
+        response = self.process_command('getmarketsummary', 'public',
                                         {'market': market})
         if response['success'] == 1:
             return True
