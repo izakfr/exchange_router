@@ -10,21 +10,33 @@ import json
 import requests
 import time
 
-# This class is used to make requests to the Bittrex API. It abstracts away the
-# url request formatting from the user.
+'''
+This class is used to make requests to the Bittrex API. It abstracts away the
+url request formatting from the user.
 
+Function calls to this wrapper will come in the following form as a JSON object
+{
+    "success": BOOLEAN,
+    "field1": TYPE,
+    "field2": TYPE
+}
+'''
 class Wrapper:
-    # Requires a filename which must be the name of a .txt file the first line
-    # must be the API "key", and the second line the API "secret".
+    '''
+    Requires a filename which must be the name of a .txt file the first line
+    must be the API "key", and the second line the API "secret".
+    '''
     def __init__(self, filename):
         privateData = open(filename, "r")
         self.apiKey = privateData.readline().rstrip('\n')
         self.apiSecret = privateData.readline().rstrip('\n')
         self.url = 'https://bittrex.com/api/v1.1/{requestType}/{command}?'
 
-    # This function acts as an abstraction for the api functions, it will take
-    # in the arguments for the command and created the API request
-    # It will handle HMAC signatures, urlencoding, and request headers
+    '''
+    This function acts as an abstraction for the api functions, it will take
+    in the arguments for the command and created the API request.
+    It will handle HMAC signatures, urlencoding, and request headers.
+    '''
     def process_command(self, command, requestType, requestArgs={}):
         # Create a nonce by using the current time
         nonce = str(int(time.time() * 10))
@@ -50,44 +62,100 @@ class Wrapper:
     def format_ticker(self, baseCurrency, counterCurrency):
         return str(counterCurrency) + "-" + str(baseCurrency)
 
-    # Return the JSON response with 'Bid', 'Ask', and 'Last' for a given market
+    '''
+    Return the bid, ask, and last price for a given market
+    Response:
+    {
+        "success": BOOLEAN,
+        "Bid": FLOAT,
+        "Ask": FLOAT,
+        "Last": FLOAT
+    }
+    '''
     def get_ticker(self, market):
         return self.process_command("getticker", "public",
                                      {'market': str(market)})
 
-    # Return the JSON response with a list of open orders for a given market
+    '''
+    Return the list of open orders for a given market
+    Response:
+    {
+        "success": BOOLEAN,
+        "book": [{
+                    "Quantity": FLOAT
+                    "Rate": FLOAT
+                 }, {
+                    "Quantity": FLOAT
+                    "Rate": FLOAT
+                 }]
+    }
+    '''
     def get_orderbook(self, market, booktype):
         return self.process_command("getorderbook", "public",
                                      {'market': str(market),
                                       'type': str(booktype)})
 
-    # Return the JSON response with the availble balance for a given currency
+    '''
+    Return the availble balance for a given currency
+    Response:
+    {
+        "success": BOOLEAN,
+        "Balance": FLOAT
+    }
+    '''
     def get_balance(self, currency):
          return self.process_command("getbalance", "account",
                                     {'currency': str(currency)})
 
-    # Return the JSON response for placing a sell order for a given market with
-    # a set price and amount
+    '''
+    Place a sell order for a given market with a set price and amount
+    Response:
+    {
+        "success": BOOLEAN,
+        "uuid": STRING
+    }
+    '''
     def sell_limit(self, market, amount, price):
         return self.process_command("selllimit", "market",
                                     {'market': market,
                                      'quantity': amount,
                                      'rate': price})
 
-    # Return the JSON response for placing a buy order for a given market with
-    # a set price and amount
+    '''
+    Place a buy order for a given market with a set price and amount
+    Response:
+    {
+        "success": BOOLEAN,
+        "uuid": STRING
+    }
+    '''
     def buy_limit(self, market, amount, price):
         return self.process_command("buylimit", "market",
                                     {'market': market,
                                      'quantity': amount,
                                      'rate': price})
 
-    # Return the JSON response for cancelling an order with the specific uuid
+    '''
+    Cancel an order with the specific uuid
+    {
+        "success": BOOLEAN
+    }
+    '''
     def cancel_order(self, uuid):
         return self.process_command("cancel", "market",
                                     {'uuid': uuid})
 
-    # Return the JSON response for getting the details of a specfic order
+    '''
+    Return the details of a specfic order
+    {
+        "success": BOOLEAN,
+        "uuid": STRING,
+        "market": STRING,
+        "quantity": FLOAT,
+        "commissionPaid": FLOAT,
+        "isOpen": BOOLEAN
+    }
+    '''
     def get_order(self, uuid):
         return self.process_command("getorder", "account",
                                     {'uuid': uuid})
