@@ -25,7 +25,7 @@ def get_average_fill_price(requestResponse, quantity):
     quantityToFill = quantity
     avgPrice = 0
     sumFilled = 0
-    for order in requestResponse['result']:
+    for order in requestResponse['book']:
         tempQuantity = float(order['Quantity'])
         tempPrice = float(order['Rate'])
 
@@ -53,7 +53,7 @@ def get_rate(requestResponse, quantity, marketSide):
     multiplicationFactor = 1.005 if marketSide == 'buy' else .995
     quantityToFill = quantity
     sumFilled = 0
-    for order in requestResponse['result']:
+    for order in requestResponse['book']:
         tempQuantity = float(order['Quantity'])
         tempPrice = float(order['Rate'])
 

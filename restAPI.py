@@ -30,19 +30,19 @@ def api_init():
         while True:
             # TODO: acquire lock and check orders
             exchangeLock.acquire()
-            
+
             # If queue is not empty get all orders and check on them
             size = orderQueue.qsize()
             for i in range(0, size):
                 orderUUID = orderQueue.get()
-                orderResponse = wrapper.get_order(orderUUID)['result']
+                orderResponse = wrapper.get_order(orderUUID)
                 # If order is filled, print it out to a file
-                if orderResponse['IsOpen'] == False:
+                if orderResponse['isOpen'] == False:
                     helpers.output_to_file("orders.txt",
-                                           orderResponse['Exchange'],
-                                           orderResponse['Price'],
-                                           orderResponse['Quantity'],
-                                           orderResponse['CommissionPaid'],
+                                           orderResponse['market'],
+                                           orderResponse['price'],
+                                           orderResponse['quantity'],
+                                           orderResponse['commissionPaid'],
                                            "Bittrex")
                 else:
                     # Put the order back on the queue
@@ -111,7 +111,7 @@ def get_currency_balance():
         return jsonify({'success': False, 'message': 'invalid currency'})
 
     # Get currency balance from Bittrex
-    balance = wrapper.get_balance(request.args['currency'])['result']['Balance']
+    balance = wrapper.get_balance(request.args['currency'])['balance']
 
     # Release lock and return
     exchangeLock.release()
@@ -155,13 +155,13 @@ def send_order():
 
     # Check that availble balance is high enough
     if request.form['order-type'] == 'buy':
-        balance = wrapper.get_balance(request.form['counter-currency'])['result']['Balance']
+        balance = wrapper.get_balance(request.form['counter-currency'])['balance']
         # Check that balance of counter-currency * rate is greater than quantity needed
         if balance * orderRate < quantity:
             exchangeLock.release()
             return jsonify({'success': False, 'message': 'insufficient balance'})
     else:
-        balance = wrapper.get_balance(request.form['base-currency'])['result']['Balance']
+        balance = wrapper.get_balance(request.form['base-currency'])['balance']
         # Check that balance is greater than quantity to sell
         if balance < quantity:
             exchangeLock.release()
@@ -172,7 +172,7 @@ def send_order():
         apiResponse = wrapper.buy_limit(formattedTicker, quantity, orderRate)
         # If order was successful add order to orderQueue and return
         if apiResponse['success'] == True:
-            orderQueue.put(apiResponse['result']['uuid'])
+            orderQueue.put(apiResponse['uuid'])
             exchangeLock.release()
             return jsonify({'success': True, 'message': 'order placed'})
         else:
@@ -184,7 +184,7 @@ def send_order():
         # If order was successful add order to orderQueue and return
         if apiResponse['success'] == True:
             # Add order uuid to the orderQueue
-            orderQueue.put(apiResponse['result']['uuid'])
+            orderQueue.put(apiResponse['uuid'])
             exchangeLock.release()
             return jsonify({'success': False, 'message': 'failed to place order'})
         else:
