@@ -192,6 +192,7 @@ class Wrapper:
         'uuid': STRING,
         'market': STRING,
         'quantity': FLOAT,
+        'price': FLOAT,
         'commissionPaid': FLOAT,
         'isOpen': BOOLEAN
     }
@@ -205,8 +206,9 @@ class Wrapper:
             return {'success': True,
                     'uuid': apiResponse['result']['OrderUuid'],
                     'market': apiResponse['result']['Exchange'],
-                    'quantity': apiResponse['result']['Quantity'],
-                    'commissionPaid': apiResponse['result']['CommissionPaid'],
+                    'quantity': float(apiResponse['result']['Quantity']),
+                    'price': float(apiResponse['result']['Price']),
+                    'commissionPaid': float(apiResponse['result']['CommissionPaid']),
                     'isOpen': apiResponse['result']['isOpen']}
         else:
             return {'success': False}
