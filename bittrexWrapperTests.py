@@ -60,7 +60,7 @@ def test_orders(wrapperInstance):
     # Place a buy order
     output0 = wrapperInstance.buy_limit("USDT-BTC", .001, 100)
     assert (output0['success'] == 1), "buy_limit failed: API call failed on valid market"
-    uuid0 = output0['result']['uuid']
+    uuid0 = output0['uuid']
     print ("buy limit order placed successfully")
 
     # Cancel the buy order
@@ -76,7 +76,7 @@ def test_orders(wrapperInstance):
     # Place a sell order
     output3 = wrapperInstance.sell_limit("USDT-BTC", .001, 50000)
     assert (output3['success'] == 1), "sell_limit failed: API call failed on valid market"
-    uuid1 = output3['result']['uuid']
+    uuid1 = output3['uuid']
     print ("sell limit order placed successfully")
 
     # Cancel the sell order

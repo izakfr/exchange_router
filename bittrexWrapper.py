@@ -123,6 +123,7 @@ class Wrapper:
     def get_balance(self, currency):
         apiResponse = self.process_command('getbalance', 'account',
                                            {'currency': str(currency)})
+                                           
         # If the API call was successful return the corresponding dictionary
         if apiResponse['success'] == True:
             return {'success': True,
@@ -143,6 +144,7 @@ class Wrapper:
                                            {'market': market,
                                             'quantity': amount,
                                             'rate': price})
+
         # If the API call was successful return the corresponding dictionary
         if apiResponse['success'] == True:
             return {'success': True,
@@ -163,6 +165,7 @@ class Wrapper:
                                             {'market': market,
                                              'quantity': amount,
                                              'rate': price})
+
         # If the API call was successful return the corresponding dictionary
         if apiResponse['success'] == True:
             return {'success': True,
@@ -179,6 +182,7 @@ class Wrapper:
     def cancel_order(self, uuid):
         apiResponse = self.process_command('cancel', 'market',
                                            {'uuid': uuid})
+
         # If the API call was successful return the corresponding dictionary
         if apiResponse['success'] == True:
             return {'success': True}
@@ -191,9 +195,10 @@ class Wrapper:
         'success': BOOLEAN,
         'uuid': STRING,
         'market': STRING,
-        'quantity': FLOAT,
+        'type': STRING,
         'price': FLOAT,
         'commissionPaid': FLOAT,
+        'timestamp': FLOAT,
         'isOpen': BOOLEAN
     }
     '''
@@ -206,10 +211,11 @@ class Wrapper:
             return {'success': True,
                     'uuid': apiResponse['result']['OrderUuid'],
                     'market': apiResponse['result']['Exchange'],
-                    'quantity': float(apiResponse['result']['Quantity']),
+                    'type': float(apiResponse['result']['Type']),
                     'price': float(apiResponse['result']['Price']),
                     'commissionPaid': float(apiResponse['result']['CommissionPaid']),
-                    'isOpen': apiResponse['result']['isOpen']}
+                    'timestamp': apiResponse['result']['Opened']
+                    'isOpen': apiResponse['result']['IsOpen']}
         else:
             return {'success': False}
 
