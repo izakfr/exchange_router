@@ -210,18 +210,18 @@ class Wrapper:
         if apiResponse['success'] == True:
             # Set the type to a uniform type
             type = ''
-            if orderResponse['type'] == 'LIMIT_BUY'
+            if apiResponse['result']['Type'] == 'LIMIT_BUY':
                 type = "Repurchase"
             else:
                 type = "Issue"
-            
+
             return {'success': True,
                     'uuid': apiResponse['result']['OrderUuid'],
                     'market': apiResponse['result']['Exchange'],
                     'type': type,
                     'price': float(apiResponse['result']['Price']),
                     'commissionPaid': float(apiResponse['result']['CommissionPaid']),
-                    'timestamp': apiResponse['result']['Opened']
+                    'timestamp': apiResponse['result']['Opened'],
                     'isOpen': apiResponse['result']['IsOpen']}
         else:
             return {'success': False}
