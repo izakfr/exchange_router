@@ -1,0 +1,16 @@
+Timeline for the routing service
+Just a general overview nothing specific yet
+
+1. Build tests that make all types of queries to Bittrex - DONE!
+2. Build a wrapper that abstracts Bittrex queries - DONE!
+
+3. Develop a test suite to check API calls - DONE!
+4. Build a REST api using Python Flask - DONE!
+5. Enable the API to take the three required requests - DONE!
+
+6. Connect our api and the Bittrex api - DONE!
+7. Run tests to check that check order placement and fulfillment - DONE!
+8. Add logic to continuously watch for order fulfillment - DONE!
+
+9. "Dockerize" the project
+10. Add support for Gemini
