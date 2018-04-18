@@ -12,5 +12,5 @@ Just a general overview nothing specific yet
 7. Run tests to check that check order placement and fulfillment - DONE!
 8. Add logic to continuously watch for order fulfillment - DONE!
 
-9. "Dockerize" the project
+9. "Dockerize" the project - DONE!
 10. Add support for Gemini
