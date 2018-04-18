@@ -109,7 +109,7 @@ def send_order_test():
     assert (response0['success'] == 1), "send-order failed: API call failed"
 
     data1 = {"base-currency": "BTC", "counter-currency": "USDT",
-             "order-type": "buy", "amount": .0005}
+             "order-type": "buy", "amount": .001}
     response1 = requests.post(baseURL, data1).json()
     assert (response1['success'] == 1), "send-order failed: API call failed"
 
