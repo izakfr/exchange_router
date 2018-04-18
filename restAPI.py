@@ -193,4 +193,4 @@ def send_order():
             return jsonify({'success': True, 'message': 'order placed'})
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
